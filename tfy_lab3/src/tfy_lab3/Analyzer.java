@@ -591,6 +591,14 @@ public class Analyzer {
 				
 				if (val != null) {
 					stack.addLast(val.value);
+				} else {
+					String str = "";
+					
+					for (Integer i : indList) {
+						str += "[" + i + "]";
+					}
+					
+					System.err.println("Ёлемент массива " + new String(lex).trim() + str + " не объ€влен");
 				}
 			} else {
 				if (type == Types.Tid) {

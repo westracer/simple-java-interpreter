@@ -18,4 +18,8 @@ class TreeNode {
 	public TreeNode parent;
 	public TreeNode leftChild;
 	public TreeNode rightChild;
+	
+	public boolean isNotEmpty() {
+		return data != null && data.id != null && data.type != NodeType.typeNone;
+	}
 }

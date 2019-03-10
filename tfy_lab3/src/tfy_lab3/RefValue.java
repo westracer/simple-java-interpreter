@@ -15,4 +15,8 @@ public class RefValue {
 	public RefType refType;					// ссылка на typedef тип
 	public long value;						// значение
 	public ArrayList<Integer> arrayIndex;	// индексы в массиве (для элемента в массиве)
+	
+	public String getTypeName() {
+		return refType != null ? refType.toString() : rawType.toString();
+	}
 }

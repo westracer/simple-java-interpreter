@@ -3,14 +3,11 @@ package tfy_lab3;
 import java.io.IOException;
 import java.util.LinkedList;
 
-import com.sun.glass.ui.Application;
-
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class Analyzer {
 	Scanner sc;
 	Semantics sem;
 	
-	TreeNode root;
 	LinkedList stack = new LinkedList();
 	
 	Analyzer(Scanner s) {
@@ -22,7 +19,6 @@ public class Analyzer {
 	{
 		Types type;
 		
-		int pos;
 		sc.SavePos();
 		type = sc.Scan();
 		while(type==Types.Tint || type==Types.Tint64 || type==Types.Ttypedef || type == Types.Tid)
@@ -119,7 +115,6 @@ public class Analyzer {
 	{
 		Types type;
 		
-		int pos;
 		sc.SavePos();
 		T();
 		sc.LoadPos();
@@ -212,7 +207,6 @@ public class Analyzer {
 	{
 		Types type;
 		
-		int pos;
 		type = sc.Scan();
 		//{
 		if(type!=Types.TlBraces)
@@ -266,7 +260,6 @@ public class Analyzer {
 	{
 		Types type;
 		
-		int pos;
 		sc.SavePos();
 		type = sc.Scan();
 		 if(type==Types.TlBraces)//блок
@@ -441,7 +434,6 @@ public class Analyzer {
 		Q1();
 		Types type;
 		
-		int pos;
 		sc.SavePos();
 		type = sc.Scan();
 		while(type==Types.Teq||type==Types.TnotEq)
@@ -458,7 +450,6 @@ public class Analyzer {
 		Q2();
 		Types type;
 		
-		int pos;
 		sc.SavePos();
 		type = sc.Scan();
 		while(type==Types.Tmore||type==Types.Tless||type==Types.TmoreEq||type==Types.TlessEq)
@@ -473,11 +464,8 @@ public class Analyzer {
 	void Q2() throws IOException
 	{
 		Q3();
-		Types type;
-		
-		int pos;
 		sc.SavePos();
-		type = sc.Scan();
+		sc.Scan();
 		sc.LoadPos();
 	}
 	void Q3() throws IOException
@@ -485,7 +473,6 @@ public class Analyzer {
 		Q4();
 		Types type;
 		
-		int pos;
 		sc.SavePos();
 		type = sc.Scan();
 		while(type==Types.Tplus||type==Types.Tminus)
@@ -502,7 +489,6 @@ public class Analyzer {
 		Q5();
 		Types type;
 		
-		int pos;
 		sc.SavePos();
 		type = sc.Scan();
 		while(type==Types.Tmod||type==Types.Tdiv||type==Types.Tmul)
@@ -518,7 +504,6 @@ public class Analyzer {
 	{
 		Types type;
 		
-		int pos;
 		sc.SavePos();
 		type = sc.Scan();
 		if(type!=Types.Tinc&&type!=Types.Tdec&&type!=Types.Tminus)
@@ -531,7 +516,6 @@ public class Analyzer {
 	{
 		Types type;
 		
-		int pos;
 		Q7();
 		sc.SavePos();
 		type = sc.Scan();
@@ -544,7 +528,6 @@ public class Analyzer {
 	{
 		Types type;
 		
-		int pos;
 		sc.SavePos();
 
 		type = sc.Scan();
@@ -577,8 +560,10 @@ public class Analyzer {
 				sc.LoadPos();
 				Z();
 			} else { 
-				if (type==Types.Tc16int||type==Types.Tc10int) {
-					stack.addLast(Long.parseLong(new String(lex).trim()));
+				if (type==Types.Tc16int) {
+					stack.addLast(Long.decode(new String(lex).trim()));
+				} else if (type==Types.Tc10int) {
+					stack.addLast(Long.parseLong(new String(lex).trim(), 10));
 				}
 				
 				if(type!=Types.Tc16int&&type!=Types.Tc10int&&type!=Types.Tid)

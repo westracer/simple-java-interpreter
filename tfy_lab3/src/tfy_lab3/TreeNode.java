@@ -22,4 +22,30 @@ class TreeNode {
 	public boolean isNotEmpty() {
 		return data != null && data.id != null && data.type != NodeType.typeNone;
 	}
+	
+	public String toString() {
+    	if (data == null) return "no data";
+    	
+    	if (data.type == NodeType.typePlaceholder || data.type == NodeType.typeNone) {
+    		return "";
+    	}
+    	
+    	if (data.id != null) {
+    		String str = new String(data.id).trim();
+    		
+    		if (data.type == NodeType.typeVar) {
+    			str += " = " + data.refValue.value + " [" + data.refValue.getTypeName() + "]";
+    		} else if (data.type == NodeType.typeMain) {
+    			str += " [" + data.type + "]";
+    		} else if (data.type == NodeType.typeTypedef) {
+    			RefType type = data.refValue.refType;
+    			
+    			str = "typedef " + str + " (" + type.getTypeName() + ")" + type.getLengthString();
+    		}
+    		
+    		return str;
+    	} else {
+    		return "";
+    	}
+	}
 }

@@ -21,4 +21,18 @@ public class RefType {
 	public Types rawType;				// ссылка на простой тип
 	public RefType refType;				// ссылка на typedef тип
 	public ArrayList<Integer> length;	// размерности (length > 0 для массива)
+	
+	public String getTypeName() {
+		return refType != null ? new String(refType.id).trim() : rawType.toString();
+	}
+	
+	public String getLengthString() {
+		String str = "";
+		
+		for (Integer i : length) {
+			str += "[" + i + "]";
+		}
+		
+		return str;
+	}
 }

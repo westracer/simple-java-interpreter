@@ -3,7 +3,6 @@ package tfy_lab3;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import javax.swing.JFrame;
 

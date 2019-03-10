@@ -264,4 +264,13 @@ public class Semantics {
 		
 		return check;
 	}
+	
+	void setVarValue(char[] varId, long value) {
+		RefValue val = findVar(varId);
+		if (val == null) {
+			throwError("Неверная переменная " + new String(varId).trim());
+		}
+		
+		val.value = value;
+	}
 }

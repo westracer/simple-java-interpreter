@@ -30,7 +30,7 @@ import org.apache.commons.collections15.Transformer;
 
 public class BinaryTreeGUI extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private static final double VERTEX_SIZE = 70;
+	private static final Font VERTEX_FONT = new Font("Times", Font.BOLD, 12);
 	private static final double EMPTY_VERTEX_SIZE = 20;
 
     private DelegateForest<TreeNode, TreeEdge> g;
@@ -71,25 +71,7 @@ public class BinaryTreeGUI extends JPanel {
         context.setVertexLabelTransformer(new ToStringLabeller<TreeNode>() {
             @Override
             public String transform(TreeNode n) {
-            	if (n.data == null) return "no data";
-            	
-            	if (n.data.type == NodeType.typePlaceholder || n.data.type == NodeType.typeNone) {
-            		return "";
-            	}
-            	
-            	if (n.data.id != null) {
-            		String str = new String(n.data.id).trim();
-            		
-            		if (n.data.type == NodeType.typeVar) {
-            			str += " = " + n.data.refValue.value + " [" + n.data.refValue.getTypeName() + "]";
-            		} else if (n.data.type == NodeType.typeMain) {
-            			str += " [" + n.data.type + "]";
-            		}
-            		
-            		return str;
-            	} else {
-            		return "";
-            	}
+            	return n.toString();
             }
         });
         vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
@@ -111,8 +93,7 @@ public class BinaryTreeGUI extends JPanel {
         context.setVertexFillPaintTransformer(painter);
         context.setVertexFontTransformer(new Transformer<TreeNode, Font>() {
             public Font transform(TreeNode i) {
-                Font font = new Font("Times", Font.BOLD, 12);
-                return font;
+                return VERTEX_FONT;
             }
         });
         
@@ -133,7 +114,9 @@ public class BinaryTreeGUI extends JPanel {
         vertexSize = new Transformer<TreeNode, Shape>() {
             @Override
             public Shape transform(TreeNode n) {
-            	Rectangle2D circle = new Rectangle2D.Double(-60, -15, 120, 30);
+            	double rectWidth = context.getGraphicsContext().getFontMetrics().stringWidth(n.toString()) + 30;
+            	
+            	Rectangle2D rect = new Rectangle2D.Double(-rectWidth/2, -15, rectWidth, 30);
                 
             	if (n.data != null) {
             		if (n.data.type == NodeType.typeNone || n.data.type == NodeType.typePlaceholder) {
@@ -141,7 +124,7 @@ public class BinaryTreeGUI extends JPanel {
             		}
             	}
             	
-                return circle;
+                return rect;
             }
         };
         context.setVertexShapeTransformer(vertexSize);

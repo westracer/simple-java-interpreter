@@ -340,7 +340,8 @@ public class Analyzer {
 		
 		sc.SavePos();
 		type = sc.Scan();
-//		System.out.println(sc.TLex);
+		char[] idLex = sc.getLex();
+		
 		if(type!=Types.Tid)
 		{
 			printError(Types.Tid);
@@ -359,7 +360,8 @@ public class Analyzer {
 			V();
 			Interpreter itpr = new Interpreter(stack);
 			itpr.evaluate();
-			System.out.println(itpr.result);
+			
+			sem.setVarValue(idLex, itpr.result);
 			
 //			printError(Types.Tas);
 		}
@@ -381,9 +383,12 @@ public class Analyzer {
 		type = sc.Scan();
 		while(type==Types.TlBrackets)
 		{
+			stack.clear();
 			V();
+			Interpreter itpr = new Interpreter(stack);
+			itpr.evaluate();
 			
-			sem.addLengthToVar(0);
+			sem.addLengthToVar(Math.toIntExact(itpr.result));
 			
 			type = sc.Scan();
 			if (type != Types.TrBrackets)

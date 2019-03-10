@@ -17,6 +17,6 @@ public class RefValue {
 	public ArrayList<Integer> arrayIndex;	// индексы в массиве (для элемента в массиве)
 	
 	public String getTypeName() {
-		return refType != null ? refType.toString() : rawType.toString();
+		return refType != null ? new String(refType.id).trim() : rawType.toString();
 	}
 }

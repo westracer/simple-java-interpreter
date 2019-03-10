@@ -79,6 +79,7 @@ public class Interpreter {
 		RefValue refValue = new RefValue(null, 0);
 		
 		switch (operator) {
+		// arithmetic
 		case Tplus:
 			refValue.value = op1 + op2;
 			break;
@@ -90,6 +91,29 @@ public class Interpreter {
 			break;
 		case Tmul:
 			refValue.value = op1 * op2;
+			break;
+		case Tmod:
+			refValue.value = op1 % op2;
+			break;
+			
+		// logical
+		case Tmore:
+			refValue.value = op1 > op2 ? 1 : 0;
+			break;
+		case TmoreEq:
+			refValue.value = op1 >= op2 ? 1 : 0;
+			break;
+		case Tless:
+			refValue.value = op1 < op2 ? 1 : 0;
+			break;
+		case TlessEq:
+			refValue.value = op1 <= op2 ? 1 : 0;
+			break;
+		case Teq:
+			refValue.value = op1 == op2 ? 1 : 0;
+			break;
+		case TnotEq:
+			refValue.value = op1 != op2 ? 1 : 0;
 			break;
 		default:
 			throwError("Неверный тип оператора: " + operator);

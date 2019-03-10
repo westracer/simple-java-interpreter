@@ -1,0 +1,37 @@
+int a = 3,b = 2;
+ int i = 1;
+  i
+  ;
+__in s;
+typedef int arr1[10];
+
+int main()
+{{}{}{}{{
+typedef int xxx;
+typedef xxx yyy;
+for (int i = 0; i < 2; i++)
+for (int i = 0; i < 2; i++);
+    arr1 = a def int arr1[10];
+    {
+        typedef arr1 arr2[100];
+        arr2 x,y;
+	typedef int arr1[10];
+        x+ b;
+    arr1[i] = 2;;;;
+    arr1[i] = 0x22;
+	typedef int arr1[10];
+    {
+        typedef arr1 arr2[100];
+        a=s-(6);
+        arr2 x,y;
+        x[3] = y[3][5][6] * 2;
+    }
+  
+    arr1[i] = 2;
+    arr1[i] = 2;
+    arr1[i] = 2;  for (int i = 1; i < 1; i++)for (int i = 1; i < 1; i++)for (int i = 1; i < 1; i++)for (int i = 1; i < 1; i++)
+    	;
+    
+    int b = x;
+    x[1][2] = 3;
+}}}}

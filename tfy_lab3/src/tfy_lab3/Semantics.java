@@ -1,5 +1,6 @@
 package tfy_lab3;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Semantics {
@@ -20,6 +21,7 @@ public class Semantics {
 	
 	void throwError(String message) {
 		System.err.println(message);
+		new Exception().printStackTrace();
 		
 		if (EXIT_ON_ERROR) {
 			System.exit(0);
@@ -85,7 +87,26 @@ public class Semantics {
 				continue;
 			}
 			
-			if (Arrays.equals(node.data.id, id)) {
+			if (Arrays.equals(node.data.id, id) && node.data.refValue.arrayIndex.isEmpty()) {
+				return node.data.refValue;
+			}
+
+			node = node.parent;
+		}
+		
+		return null;
+	}
+	
+	RefValue findArrayCellVar(char[] id, ArrayList<Integer> indices) {
+		TreeNode node = currentNode;
+		
+		while (node != null) {
+			if (node.data.type != NodeType.typeVar) {
+				node = node.parent;
+				continue;
+			}
+			
+			if (Arrays.equals(node.data.id, id) && node.data.refValue.arrayIndex.equals(indices)) {
 				return node.data.refValue;
 			}
 
@@ -173,8 +194,6 @@ public class Semantics {
 	void addVar(Types type, char[] id, long value, int textPos) {
 		RefValue val = new RefValue(id, value);
 		val.rawType = type;
-
-//		values.add(val);
 		
 		updateCurrentNode(id, textPos, val);
 	}
@@ -182,10 +201,17 @@ public class Semantics {
 	void addVar(char[] typeId, char[] id, long value, int textPos) {
 		RefValue val = new RefValue(id, value);
 		val.refType = findRefType(typeId);
-
-//		values.add(val);
 		
 		updateCurrentNode(id, textPos, val);
+	}
+	
+	void addArrayCellVar(RefValue ref, char[] id, ArrayList<Integer> indices, long value) {
+		RefValue val = new RefValue(id, value);
+		val.rawType = ref.rawType;
+		val.refType = ref.refType;
+		val.arrayIndex = indices;
+		
+		updateCurrentNode(id, 0, val);
 	}
 	
 	void updateCurrentNode(char[] id, int textPos, RefValue val) {
@@ -239,30 +265,51 @@ public class Semantics {
 	
 	// добавление размерности к переменной
 	void addLengthToVar(int length) {
+		if (length < 1) {
+			throwError("–азмер массива должен быть > 0. ƒано: " + length);
+			return;
+		}
+		
 		if (currentNode == null || currentNode.parent == null) {
 			return;
 		}
 
 		NodeData data = currentNode.parent.data;
 		if (data.type == NodeType.typeVar) {
-			data.refValue.arrayIndex.add(length);
+			data.refValue.arrayLength.add(length);
 		} else if (data.type == NodeType.typeTypedef) {
 			data.refValue.refType.length.add(length);
 		}
 	}
 	
-	boolean checkVarLength(char[] varId, int length) {
+	boolean checkVarLength(char[] varId, Integer[] indices) {
 		RefValue val = findVar(varId);
 		if (val == null) {
 			return false;
 		}
 
-		boolean check = length <= val.arrayIndex.size();
-		if (!check) {
-			throwError("Ќеверна€ размерность переменной " + new String(varId).trim() + ": " + length + " > " + val.arrayIndex.size());
+		int indicesLength = indices.length;
+		int varArrayLength = val.arrayLength.size(); // TODO: recursive typedef lengths
+		
+		if (indicesLength > varArrayLength) {
+			throwError("Ќеверна€ размерность переменной " + new String(varId).trim() + ": " + indicesLength + " > " + varArrayLength);
+			return false;
+		} else if (indicesLength < varArrayLength) {
+			throwError("ќперации над массивами не разрешены дл€ " + new String(varId).trim() + ": " + indicesLength + " < " + varArrayLength);
+			return false;
 		}
 		
-		return check;
+		for (int i = 0; i < indicesLength; i++) {
+			int index = indices[i];
+			int length = val.arrayLength.get(i);
+			
+			if (index < 0 || index > length - 1) {
+				throwError("out of bounds " + new String(varId).trim() + ": i = " + index + " не соответствует условию 0 <= i <= " + (length - 1));
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	void setVarValue(char[] varId, long value) {
@@ -272,5 +319,26 @@ public class Semantics {
 		}
 		
 		val.value = value;
+	}
+	
+	void setVarArrayCellValue(char[] varId, Integer[] indices, long value) {
+		RefValue val = findVar(varId);
+		if (val == null) {
+			throwError("Ќеверна€ переменна€ " + new String(varId).trim());
+			return;
+		}
+
+		if (!checkVarLength(varId, indices)) {
+			return;
+		}
+
+		ArrayList<Integer> indicesList = new ArrayList<Integer>(Arrays.asList(indices));
+		
+		RefValue cellVal = findArrayCellVar(varId, indicesList);
+		if (cellVal == null) {
+			addArrayCellVar(val, varId, indicesList, value);
+		} else {
+			cellVal.value = value;
+		}
 	}
 }

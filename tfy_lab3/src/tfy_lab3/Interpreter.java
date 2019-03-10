@@ -35,6 +35,7 @@ public class Interpreter {
 	
 	void throwError(String message) {
 		System.err.println(message);
+		new Exception().printStackTrace();
 		System.exit(0);
 	}
 	

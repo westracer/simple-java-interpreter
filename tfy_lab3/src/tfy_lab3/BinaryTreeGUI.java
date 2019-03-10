@@ -35,20 +35,19 @@ public class BinaryTreeGUI extends JPanel {
 
     private DelegateForest<TreeNode, TreeEdge> g;
     private DynamicTreeLayout<TreeNode, TreeEdge> layout;
-	private VisualizationViewer vv;
+	private VisualizationViewer<TreeNode, TreeEdge> vv;
     private TreeNode st;
     private JScrollPane scrollPane;
    
-	@SuppressWarnings("unchecked")
 	public BinaryTreeGUI(TreeNode st) {
         this.st = st;
-        g = new DelegateForest(new DirectedOrderedSparseMultigraph());
+        g = new DelegateForest<TreeNode, TreeEdge>(new DirectedOrderedSparseMultigraph<TreeNode, TreeEdge>());
         buildTree();
-        layout = new DynamicTreeLayout(g);
-        vv = new VisualizationViewer(layout, new Dimension(1024, 600));
+        layout = new DynamicTreeLayout<TreeNode, TreeEdge>(g);
+        vv = new VisualizationViewer<TreeNode, TreeEdge>(layout, new Dimension(1024, 600));
         RenderContext<TreeNode, TreeEdge> context = vv.getRenderContext();
 
-        context.setEdgeLabelTransformer(new ToStringLabeller());
+        context.setEdgeLabelTransformer(new ToStringLabeller<TreeEdge>());
         context.setEdgeFontTransformer(new Transformer<TreeEdge, Font>() {
             public Font transform(TreeEdge i) {
                 Font font = new Font("Times", Font.BOLD, 16);
@@ -58,6 +57,8 @@ public class BinaryTreeGUI extends JPanel {
         context.setLabelOffset(-5);
         final Color edgeLabelColor = Color.black;
         context.setEdgeLabelRenderer(new DefaultEdgeLabelRenderer(edgeLabelColor, true) {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public <E> Component getEdgeLabelRendererComponent(JComponent vv, Object value, Font font,
 					boolean isSelected, E edge) {
@@ -129,7 +130,7 @@ public class BinaryTreeGUI extends JPanel {
         };
         context.setVertexShapeTransformer(vertexSize);
 
-        final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        final DefaultModalGraphMouse<TreeNode, TreeEdge> graphMouse = new DefaultModalGraphMouse<TreeNode, TreeEdge>();
         vv.setGraphMouse(graphMouse);
         vv.addKeyListener(graphMouse.getModeKeyListener());
 

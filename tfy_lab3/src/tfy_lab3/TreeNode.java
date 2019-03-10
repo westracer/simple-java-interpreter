@@ -34,7 +34,20 @@ class TreeNode {
     		String str = new String(data.id).trim();
     		
     		if (data.type == NodeType.typeVar) {
-    			str += " = " + data.refValue.value + " [" + data.refValue.getTypeName() + "]";
+    			String lenIndices = "";
+    			String value = "";
+    			if (!data.refValue.arrayLength.isEmpty()) {
+    				lenIndices += data.refValue.getLengthString();
+    			} else {
+    				value = " = " + data.refValue.value;
+    			}
+    			
+    			String indCell = "";
+    			if (!data.refValue.arrayIndex.isEmpty()) {
+    				indCell += data.refValue.getIndexString();
+    			}
+    			
+    			str += indCell + value + " [" + data.refValue.getTypeName() + lenIndices + "]";
     		} else if (data.type == NodeType.typeMain) {
     			str += " [" + data.type + "]";
     		} else if (data.type == NodeType.typeTypedef) {

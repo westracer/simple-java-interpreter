@@ -1,7 +1,10 @@
 package tfy_lab3;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class Analyzer {
@@ -9,6 +12,7 @@ public class Analyzer {
 	Semantics sem;
 	
 	LinkedList stack = new LinkedList();
+	Integer[] indices;
 	
 	Analyzer(Scanner s) {
 		sc = s;
@@ -274,8 +278,13 @@ public class Analyzer {
 					sem.checkVarAndThrowErrors(sc.getLex());
 					type=sc.Scan();
 					sc.LoadPos();
-					if(type==Types.Tas || type == Types.TlBrackets) H();
-					else V();
+					
+					if(type == Types.Tas || type == Types.TlBrackets) {
+						H();
+					} else {
+						V();
+					}
+					
 					type = sc.Scan();
 				}
 				//for
@@ -306,11 +315,11 @@ public class Analyzer {
 					type = sc.Scan();
 					if(type!=Types.Tsem)
 						printError(Types.Tsem);
-					V();
+					V(); // TODO: for
 					type = sc.Scan();
 					if(type!=Types.Tsem)
 						printError(Types.Tsem);
-					V();
+					V(); // TODO: for
 					type = sc.Scan();
 					if(type!=Types.TrPar)
 						printError(Types.TrPar);
@@ -347,6 +356,8 @@ public class Analyzer {
 			printError(Types.Tid);
 		}
 		type = sc.Scan();
+		
+		indices = null;
 		if(type==Types.TlBrackets)
 		{
 			sc.LoadPos();
@@ -354,6 +365,12 @@ public class Analyzer {
 			sc.SavePos();
 			type = sc.Scan();
 		}
+		
+		Integer[] varIndices = null;
+		if (indices != null) {
+			varIndices = indices.clone();
+		}
+		
 		if(type==Types.Tas)
 		{
 			stack.clear();
@@ -361,7 +378,11 @@ public class Analyzer {
 			Interpreter itpr = new Interpreter(stack);
 			itpr.evaluate();
 			
-			sem.setVarValue(idLex, itpr.result);
+			if (varIndices != null && varIndices.length > 0) {
+				sem.setVarArrayCellValue(idLex, varIndices, itpr.result);
+			} else {
+				sem.setVarValue(idLex, itpr.result);
+			}
 			
 //			printError(Types.Tas);
 		}
@@ -411,13 +432,13 @@ public class Analyzer {
 			printError(Types.Tid);
 		}
 		
-		char[] varId = sc.getLex();
-		int arrLength = 0;
+		ArrayList<Integer> arrIndices = new ArrayList<Integer>();
 		
 		type = sc.Scan();
 		
 		while(type==Types.TlBrackets)
 		{
+			stack.clear();
 			V();
 			type = sc.Scan();
 			if (type != Types.TrBrackets)
@@ -425,12 +446,14 @@ public class Analyzer {
 			else {
 				sc.SavePos();
 				type = sc.Scan();
-				
-				arrLength++;
+
+				Interpreter itpr = new Interpreter(stack);
+				itpr.evaluate();
+				arrIndices.add(Math.toIntExact(itpr.result));
 			}
 		}
 		
-		sem.checkVarLength(varId, arrLength);
+		indices = ((List<Integer>) arrIndices).toArray(new Integer[arrIndices.size()]);
 		
 		sc.LoadPos();
 	}
@@ -537,14 +560,6 @@ public class Analyzer {
 
 		type = sc.Scan();
 		char[] lex = sc.getLex();
-
-		if (type == Types.Tid) {
-			boolean existingVar = sem.checkVarAndThrowErrors(sc.getLex());
-			
-			if (existingVar) {
-				stack.addLast(sem.findVar(sc.getLex()).value);
-			}
-		}
 		
 		int[] pos2 = new int[] {sc.num_str, sc.pos_str, sc.pos_text};
 		Types newt = sc.Scan();
@@ -563,8 +578,29 @@ public class Analyzer {
 		else
 			if (newt == Types.TlBrackets) {
 				sc.LoadPos();
+				
+				indices = null;
+				
+				// в Z будет рекурсивное выражение в V. Сохраняем стек лексем
+				LinkedList savedStack = (LinkedList) stack.clone();
 				Z();
-			} else { 
+				stack = savedStack;
+				
+				ArrayList<Integer> indList = new ArrayList<Integer>(Arrays.asList(indices));
+				RefValue val = sem.findArrayCellVar(lex, indList);
+				
+				if (val != null) {
+					stack.addLast(val.value);
+				}
+			} else {
+				if (type == Types.Tid) {
+					boolean existingVar = sem.checkVarAndThrowErrors(lex);
+					
+					if (existingVar) {
+						stack.addLast(sem.findVar(lex).value);
+					}
+				}
+				
 				if (type==Types.Tc16int) {
 					stack.addLast(Long.decode(new String(lex).trim()));
 				} else if (type==Types.Tc10int) {

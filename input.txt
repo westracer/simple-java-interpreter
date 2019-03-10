@@ -13,6 +13,14 @@ int main() {
 	
 	{
 		int asd = 2;
+		asd = 4;
+		
+		int asdd[10];
+		asdd[9] = 1;
+		asdd[4] = 2;
+		asdd[9] = 10;
+		
+		int testing = asdd[9];
 	}
 }
 

@@ -289,22 +289,32 @@ public class Semantics {
 		}
 
 		int indicesLength = indices.length;
-		int varArrayLength = val.arrayLength.size(); // TODO: recursive typedef lengths
 		
-		if (indicesLength > varArrayLength) {
-			throwError("Ќеверна€ размерность переменной " + new String(varId).trim() + ": " + indicesLength + " > " + varArrayLength);
+		@SuppressWarnings("unchecked")
+		ArrayList<Integer> recursiveIndices = (ArrayList<Integer>) val.arrayLength.clone();
+		
+		RefType type = val.refType;
+		int length = val.arrayLength.size();
+		while (type != null) {
+			length += type.length.size();
+			recursiveIndices.addAll(type.length);
+			type = type.refType;
+		}
+		
+		if (indicesLength > length) {
+			throwError("Ќеверна€ размерность переменной " + new String(varId).trim() + ": " + indicesLength + " > " + length);
 			return false;
-		} else if (indicesLength < varArrayLength) {
-			throwError("ќперации над массивами не разрешены дл€ " + new String(varId).trim() + ": " + indicesLength + " < " + varArrayLength);
+		} else if (indicesLength < length) {
+			throwError("ќперации над массивами не разрешены дл€ " + new String(varId).trim() + ": " + indicesLength + " < " + length);
 			return false;
 		}
 		
 		for (int i = 0; i < indicesLength; i++) {
 			int index = indices[i];
-			int length = val.arrayLength.get(i);
+			int indexLength = recursiveIndices.get(i);
 			
-			if (index < 0 || index > length - 1) {
-				throwError("out of bounds " + new String(varId).trim() + ": i = " + index + " не соответствует условию 0 <= i <= " + (length - 1));
+			if (index < 0 || index > indexLength - 1) {
+				throwError("out of bounds " + new String(varId).trim() + ": i = " + index + " не соответствует условию 0 <= i <= " + (indexLength - 1));
 				return false;
 			}
 		}
@@ -312,16 +322,28 @@ public class Semantics {
 		return true;
 	}
 	
-	void setVarValue(char[] varId, long value) {
+	void setVarValue(char[] varId, RefValue value) {
 		RefValue val = findVar(varId);
 		if (val == null) {
 			throwError("Ќеверна€ переменна€ " + new String(varId).trim());
 		}
 		
-		val.value = value;
+		RefType type = value.refType;
+		int length = 0;
+		while (type != null) {
+			length += type.length.size();
+			type = type.refType;
+		}
+		
+		if (length > 0) {
+			throwError("ќперации над массивами не разрешены дл€ " + new String(varId).trim());
+			return;
+		}
+		
+		val.value = value.value;
 	}
 	
-	void setVarArrayCellValue(char[] varId, Integer[] indices, long value) {
+	void setVarArrayCellValue(char[] varId, Integer[] indices, RefValue value) {
 		RefValue val = findVar(varId);
 		if (val == null) {
 			throwError("Ќеверна€ переменна€ " + new String(varId).trim());
@@ -331,14 +353,16 @@ public class Semantics {
 		if (!checkVarLength(varId, indices)) {
 			return;
 		}
+		
+		val.value = value.value;
 
 		ArrayList<Integer> indicesList = new ArrayList<Integer>(Arrays.asList(indices));
 		
 		RefValue cellVal = findArrayCellVar(varId, indicesList);
 		if (cellVal == null) {
-			addArrayCellVar(val, varId, indicesList, value);
+			addArrayCellVar(val, varId, indicesList, value.value);
 		} else {
-			cellVal.value = value;
+			cellVal.value = value.value;
 		}
 	}
 }

@@ -5,7 +5,7 @@ arr1 testArray;
 arr2 testArray2;
 
 int main() {
-	testArray2 = testArray;
+	// testArray2 = testArray;
 	__int64 s = 10;
 	int b = 2++;
 

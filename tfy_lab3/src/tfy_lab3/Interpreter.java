@@ -6,6 +6,8 @@ import java.util.LinkedList;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class Interpreter {
     static HashMap<Types, Integer> precedence = new HashMap<Types, Integer>();
+    static final public long TRUE = 1;
+    static final public long FALSE = 0;
     
 	LinkedList expression;
 	LinkedList<RefValue> operands = new LinkedList();
@@ -101,22 +103,22 @@ public class Interpreter {
 			
 		// logical
 		case Tmore:
-			refValue.value = op1.value > op2.value ? 1 : 0;
+			refValue.value = op1.value > op2.value ? Interpreter.TRUE : Interpreter.FALSE;
 			break;
 		case TmoreEq:
-			refValue.value = op1.value >= op2.value ? 1 : 0;
+			refValue.value = op1.value >= op2.value ? Interpreter.TRUE : Interpreter.FALSE;
 			break;
 		case Tless:
-			refValue.value = op1.value < op2.value ? 1 : 0;
+			refValue.value = op1.value < op2.value ? Interpreter.TRUE : Interpreter.FALSE;
 			break;
 		case TlessEq:
-			refValue.value = op1.value <= op2.value ? 1 : 0;
+			refValue.value = op1.value <= op2.value ? Interpreter.TRUE : Interpreter.FALSE;
 			break;
 		case Teq:
-			refValue.value = op1.value == op2.value ? 1 : 0;
+			refValue.value = op1.value == op2.value ? Interpreter.TRUE : Interpreter.FALSE;
 			break;
 		case TnotEq:
-			refValue.value = op1.value != op2.value ? 1 : 0;
+			refValue.value = op1.value != op2.value ? Interpreter.TRUE : Interpreter.FALSE;
 			break;
 		default:
 			throwError("Неверный тип оператора: " + operator);

@@ -338,11 +338,6 @@ public class Analyzer {
 					
 					int[] blockPos = sc.SavePos();
 					
-//					Types scannedLex = sc.Scan();
-//					while (scannedLex) {
-//						scannedLex = sc.Scan();
-//					}
-					
 					boolean wasInterpreting = isInterpreting;
 					isInterpreting = false;
 
@@ -358,7 +353,7 @@ public class Analyzer {
 					
 					isInterpreting = wasInterpreting;
 					
-					while (eval == 1 && isInterpreting) {
+					while (eval == Interpreter.TRUE && isInterpreting) {
 						sc.LoadPos(blockPos);
 						
 						// post V
@@ -438,9 +433,9 @@ public class Analyzer {
 				itpr.evaluate();
 				
 				if (varIndices != null && varIndices.length > 0) {
-					sem.setVarArrayCellValue(idLex, varIndices, itpr.result.value);
+					sem.setVarArrayCellValue(idLex, varIndices, itpr.result);
 				} else {
-					sem.setVarValue(idLex, itpr.result.value);
+					sem.setVarValue(idLex, itpr.result);
 				}
 			}
 			

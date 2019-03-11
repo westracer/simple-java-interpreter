@@ -6,6 +6,7 @@ public class RefValue {
 	public RefValue(char[] id, long value) {
 		this.id = id;
 		this.value = value;
+		this.rawType = Types.Tint;
 
 		this.arrayIndex = new ArrayList<Integer>();
 		this.arrayLength = new ArrayList<Integer>();

@@ -29,16 +29,24 @@ public class Scanner {
 		return TLex.clone();
 	}
 	
-	public void SavePos() {
+	public int[] SavePos() {
 		saved[0] = pos_text;
 		saved[1] = num_str;
 		saved[2] = pos_str;
+		
+		return saved.clone();
 	}
 	
 	public void LoadPos() {
 		pos_text = saved[0];
 		num_str = saved[1];
 		pos_str = saved[2];
+	}
+	
+	public void LoadPos(int[] pos) {
+		pos_text = pos[0];
+		num_str = pos[1];
+		pos_str = pos[2];
 	}
 	
 	public void OpenFile() throws IOException {

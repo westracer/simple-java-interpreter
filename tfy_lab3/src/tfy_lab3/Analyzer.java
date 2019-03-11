@@ -14,6 +14,8 @@ public class Analyzer {
 	LinkedList stack = new LinkedList();
 	Integer[] indices;
 	
+	boolean isInterpreting = true;
+	
 	Analyzer(Scanner s) {
 		sc = s;
 		sem = new Semantics();
@@ -294,6 +296,8 @@ public class Analyzer {
 //					type = sc.Scan();
 //					if(type != TWhile)
 //						printError(TWhile);
+					TreeNode oldParent = sem.currentNode.parent;
+					
 					type = sc.Scan();
 					if(type!=Types.TlPar)
 						printError(Types.TlPar);
@@ -315,32 +319,82 @@ public class Analyzer {
 					type = sc.Scan();
 					if(type!=Types.Tsem)
 						printError(Types.Tsem);
-					V(); // TODO: for
+					
+					int[] conditionPos = sc.SavePos();
+					
+					long eval = 0;
+					if (isInterpreting) {
+						stack.clear();
+						V();
+						Interpreter itpr = new Interpreter(stack);
+						itpr.evaluate();
+					
+						eval = itpr.result.value;
+					}
+					
 					type = sc.Scan();
 					if(type!=Types.Tsem)
 						printError(Types.Tsem);
-					V(); // TODO: for
+					
+					int[] blockPos = sc.SavePos();
+					
+//					Types scannedLex = sc.Scan();
+//					while (scannedLex) {
+//						scannedLex = sc.Scan();
+//					}
+					
+					boolean wasInterpreting = isInterpreting;
+					isInterpreting = false;
+
+					V();
+					
 					type = sc.Scan();
 					if(type!=Types.TrPar)
 						printError(Types.TrPar);
+					
 					G();
+					
+					int[] afterPos = sc.SavePos();
+					
+					isInterpreting = wasInterpreting;
+					
+					while (eval == 1 && isInterpreting) {
+						sc.LoadPos(blockPos);
+						
+						// post V
+						if (isInterpreting) {
+							stack.clear();
+							V();
+							Interpreter itpr = new Interpreter(stack);
+							itpr.evaluate();
+						}
+						
+						type = sc.Scan();
+						if(type!=Types.TrPar)
+							printError(Types.TrPar);
+						G();
+
+						// condition
+						sc.LoadPos(conditionPos);
+
+						if (isInterpreting) {
+							stack.clear();
+							V();
+							Interpreter itpr = new Interpreter(stack);
+							itpr.evaluate();
+							
+							eval = itpr.result.value;
+						}
+					}
+					
+					sem.currentNode = sem.createEmptyNode();
+					sem.currentNode.parent = oldParent;
+					oldParent.leftChild = sem.currentNode;
+					
+					sc.LoadPos(afterPos);
+					
 //					type = sc.Scan();
 				}
-				
-				//return
-//				else if(type==TReturn)
-//				{
-//					V();
-//					type = sc.Scan();
-//				}
-//				else if(type==Types.Tinc||type==Types.Tdec||type==Types.Tminus)
-//				{
-//					sc.LoadPos();
-//					V();
-//					type=sc.Scan();
-//				}
-//				if(type!=Types.Tsem)
-//					printError(Types.Tsem);
 			}
 	}
 	void H() throws IOException
@@ -373,15 +427,21 @@ public class Analyzer {
 		
 		if(type==Types.Tas)
 		{
-			stack.clear();
-			V();
-			Interpreter itpr = new Interpreter(stack);
-			itpr.evaluate();
+			if (isInterpreting) {
+				stack.clear();
+			}
 			
-			if (varIndices != null && varIndices.length > 0) {
-				sem.setVarArrayCellValue(idLex, varIndices, itpr.result);
-			} else {
-				sem.setVarValue(idLex, itpr.result);
+			V();
+			
+			if (isInterpreting) {
+				Interpreter itpr = new Interpreter(stack);
+				itpr.evaluate();
+				
+				if (varIndices != null && varIndices.length > 0) {
+					sem.setVarArrayCellValue(idLex, varIndices, itpr.result.value);
+				} else {
+					sem.setVarValue(idLex, itpr.result.value);
+				}
 			}
 			
 //			printError(Types.Tas);
@@ -404,12 +464,18 @@ public class Analyzer {
 		type = sc.Scan();
 		while(type==Types.TlBrackets)
 		{
-			stack.clear();
-			V();
-			Interpreter itpr = new Interpreter(stack);
-			itpr.evaluate();
+			if (isInterpreting) {
+				stack.clear();
+			}
 			
-			sem.addLengthToVar(Math.toIntExact(itpr.result));
+			V();
+			
+			if (isInterpreting) {
+				Interpreter itpr = new Interpreter(stack);
+				itpr.evaluate();
+				
+				sem.addLengthToVar(Math.toIntExact(itpr.result.value));
+			}
 			
 			type = sc.Scan();
 			if (type != Types.TrBrackets)
@@ -446,10 +512,12 @@ public class Analyzer {
 			else {
 				sc.SavePos();
 				type = sc.Scan();
-
-				Interpreter itpr = new Interpreter(stack);
-				itpr.evaluate();
-				arrIndices.add(Math.toIntExact(itpr.result));
+				
+				if (isInterpreting) {
+					Interpreter itpr = new Interpreter(stack);
+					itpr.evaluate();
+					arrIndices.add(Math.toIntExact(itpr.result.value));
+				}
 			}
 		}
 		
@@ -590,7 +658,7 @@ public class Analyzer {
 				RefValue val = sem.findArrayCellVar(lex, indList);
 				
 				if (val != null) {
-					stack.addLast(val.value);
+					stack.addLast(val);
 				} else {
 					String str = "";
 					
@@ -605,14 +673,20 @@ public class Analyzer {
 					boolean existingVar = sem.checkVarAndThrowErrors(lex);
 					
 					if (existingVar) {
-						stack.addLast(sem.findVar(lex).value);
+						stack.addLast(sem.findVar(lex));
 					}
 				}
 				
 				if (type==Types.Tc16int) {
-					stack.addLast(Long.decode(new String(lex).trim()));
+					RefValue val = new RefValue(null, Long.decode(new String(lex).trim()));
+					val.rawType = Types.Tint;
+					
+					stack.addLast(val);
 				} else if (type==Types.Tc10int) {
-					stack.addLast(Long.parseLong(new String(lex).trim(), 10));
+					RefValue val = new RefValue(null, Long.parseLong(new String(lex).trim(), 10));
+					val.rawType = Types.Tint;
+					
+					stack.addLast(val);
 				}
 				
 				if(type!=Types.Tc16int&&type!=Types.Tc10int&&type!=Types.Tid)

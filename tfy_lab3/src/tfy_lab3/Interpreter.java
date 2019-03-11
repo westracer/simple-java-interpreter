@@ -8,10 +8,10 @@ public class Interpreter {
     static HashMap<Types, Integer> precedence = new HashMap<Types, Integer>();
     
 	LinkedList expression;
-	LinkedList<Long> operands = new LinkedList();
+	LinkedList<RefValue> operands = new LinkedList();
 	LinkedList<Types> operators = new LinkedList();
 	
-	public long result;
+	public RefValue result;
 	
 	Interpreter(LinkedList ex) {
 		this.expression = new LinkedList(ex);
@@ -40,24 +40,26 @@ public class Interpreter {
 	}
 	
 	private void _evaluateUnaryOperation() {
-		long op1 = operands.pollLast();
+		RefValue op1 = operands.pollLast();
 		Types operator = operators.pollLast();
 
 		RefValue refValue = new RefValue(null, 0);
 		
 		switch (operator) {
 		case Tinc:
-			refValue.value = op1 + 1;
+			refValue.value = op1.value + 1;
+			op1.value = refValue.value;
 			break;
 		case Tdec:
-			refValue.value = op1 - 1;
+			refValue.value = op1.value - 1;
+			op1.value = refValue.value;
 			break;
 		default:
 			throwError("Неверный тип оператора: " + operator);
 			return;
 		}
 		
-		operands.addLast(refValue.value);
+		operands.addLast(refValue);
 //		System.out.println(op1 + " ["+operator+"] => " + refValue.value);
 	}
 	
@@ -73,8 +75,8 @@ public class Interpreter {
 	}
 	
 	private void _evaluateBinaryOperation() {
-		long op2 = operands.pollLast();
-		long op1 = operands.pollLast();
+		RefValue op2 = operands.pollLast();
+		RefValue op1 = operands.pollLast();
 		Types operator = operators.pollLast();
 
 		RefValue refValue = new RefValue(null, 0);
@@ -82,54 +84,54 @@ public class Interpreter {
 		switch (operator) {
 		// arithmetic
 		case Tplus:
-			refValue.value = op1 + op2;
+			refValue.value = op1.value + op2.value;
 			break;
 		case Tminus:
-			refValue.value = op1 - op2;
+			refValue.value = op1.value - op2.value;
 			break;
 		case Tdiv:
-			refValue.value = op1 / op2;
+			refValue.value = op1.value / op2.value;
 			break;
 		case Tmul:
-			refValue.value = op1 * op2;
+			refValue.value = op1.value * op2.value;
 			break;
 		case Tmod:
-			refValue.value = op1 % op2;
+			refValue.value = op1.value % op2.value;
 			break;
 			
 		// logical
 		case Tmore:
-			refValue.value = op1 > op2 ? 1 : 0;
+			refValue.value = op1.value > op2.value ? 1 : 0;
 			break;
 		case TmoreEq:
-			refValue.value = op1 >= op2 ? 1 : 0;
+			refValue.value = op1.value >= op2.value ? 1 : 0;
 			break;
 		case Tless:
-			refValue.value = op1 < op2 ? 1 : 0;
+			refValue.value = op1.value < op2.value ? 1 : 0;
 			break;
 		case TlessEq:
-			refValue.value = op1 <= op2 ? 1 : 0;
+			refValue.value = op1.value <= op2.value ? 1 : 0;
 			break;
 		case Teq:
-			refValue.value = op1 == op2 ? 1 : 0;
+			refValue.value = op1.value == op2.value ? 1 : 0;
 			break;
 		case TnotEq:
-			refValue.value = op1 != op2 ? 1 : 0;
+			refValue.value = op1.value != op2.value ? 1 : 0;
 			break;
 		default:
 			throwError("Неверный тип оператора: " + operator);
 			return;
 		}
 		
-		operands.addLast(refValue.value);
+		operands.addLast(refValue);
 //		System.out.println(op1 + " ["+operator+"] "+op2+" => " + refValue.value);
 	}
 	
 	// shunting yard
 	void evaluate() {
 		for (Object obj : this.expression) {
-			if (obj.getClass() == Long.class) {
-				operands.addLast((Long) obj);
+			if (obj.getClass() == RefValue.class) {
+				operands.addLast((RefValue) obj);
 			} else if (obj.getClass() == Types.class) {
 				Types type = (Types) obj;
 				

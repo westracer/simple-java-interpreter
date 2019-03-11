@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import javax.swing.JFrame;
 
-// TODO: for, typedef indices, binary type checking
+// TODO: typedef indices, binary type checking
 public class Main {
 	public static void main(String[] args) throws IOException {
 		Scanner s = new Scanner();

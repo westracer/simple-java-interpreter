@@ -1,5 +1,4 @@
-package tfy_lab3;
-
+package src;
 enum Types {
 	Tid(1), Tint(2), Tint64(3), Ttypedef(4), Tmain(5), Tfor(6),
 	Tc10int(7),Tc16int(8),Tc10int64(9),Tc16int64(10),

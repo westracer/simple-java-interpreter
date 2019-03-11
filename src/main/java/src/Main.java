@@ -1,5 +1,4 @@
-package tfy_lab3;
-
+package src;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;

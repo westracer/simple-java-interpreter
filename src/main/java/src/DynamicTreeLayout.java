@@ -1,5 +1,4 @@
-package tfy_lab3;
-
+package src;
 import edu.uci.ics.jung.algorithms.layout.TreeLayout;
 import java.awt.Point;
 import java.util.Collection;

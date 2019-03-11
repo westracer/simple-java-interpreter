@@ -1,5 +1,4 @@
-package tfy_lab3;
-
+package src;
 public class NodeData {
 	public NodeData(NodeType type) {
 		this.type = type;

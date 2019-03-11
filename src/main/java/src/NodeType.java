@@ -1,5 +1,4 @@
-package tfy_lab3;
-
+package src;
 enum NodeType {	
 	typeVar(200), typeMain(201), typeTypedef(202), 
 	typeNone(-1), typePlaceholder(-2);

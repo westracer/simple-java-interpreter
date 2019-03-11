@@ -1,4 +1,4 @@
-package tfy_lab3;
+package src;
 
 import edu.uci.ics.jung.graph.DelegateForest;
 import edu.uci.ics.jung.graph.DirectedOrderedSparseMultigraph;
@@ -17,7 +17,6 @@ import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
@@ -25,7 +24,8 @@ import java.awt.geom.Rectangle2D;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import org.apache.commons.collections15.Transformer;
+
+import com.google.common.base.Function;
 
 
 public class BinaryTreeGUI extends JPanel {
@@ -47,12 +47,10 @@ public class BinaryTreeGUI extends JPanel {
         vv = new VisualizationViewer<TreeNode, TreeEdge>(layout, new Dimension(1024, 600));
         RenderContext<TreeNode, TreeEdge> context = vv.getRenderContext();
 
-        context.setEdgeLabelTransformer(new ToStringLabeller<TreeEdge>());
-        context.setEdgeFontTransformer(new Transformer<TreeEdge, Font>() {
-            public Font transform(TreeEdge i) {
-                Font font = new Font("Times", Font.BOLD, 16);
-                return font;
-            }
+        context.setEdgeLabelTransformer(new ToStringLabeller());
+        context.setEdgeFontTransformer((TreeEdge i) -> {
+            Font font = new Font("Times", Font.BOLD, 16);
+            return font;
         });
         context.setLabelOffset(-5);
         final Color edgeLabelColor = Color.black;
@@ -68,34 +66,29 @@ public class BinaryTreeGUI extends JPanel {
 			}
         });
         
-        context.setEdgeShapeTransformer(new EdgeShape.Line<>());
-        context.setVertexLabelTransformer(new ToStringLabeller<TreeNode>() {
-            @Override
-            public String transform(TreeNode n) {
-            	return n.toString();
-            }
+        context.setEdgeFillPaintTransformer((TreeEdge e) -> Color.BLACK);
+        context.setEdgeShapeTransformer((TreeEdge e) -> {
+        	return EdgeShape.line(g).apply(e);
+        });
+        
+        context.setVertexLabelTransformer((TreeNode n) -> {
+        	return n.toString();
         });
         vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
         
-        Transformer<TreeNode, Paint> painter = new Transformer<TreeNode, Paint>() {
-            public Paint transform(TreeNode n) {
-            	if (n.data != null) {
-                	if (n.data.type == NodeType.typeNone) {
-                        return Color.BLACK;
-                	} else if (n.data.type == NodeType.typePlaceholder) {
-                        return new Color(0,0,0,0);                		
-                	}
+        context.setVertexFillPaintTransformer((TreeNode n) -> {
+        	if (n.data != null) {
+            	if (n.data.type == NodeType.typeNone) {
+                    return Color.BLACK;
+            	} else if (n.data.type == NodeType.typePlaceholder) {
+                    return new Color(0,0,0,0);                		
             	}
-            	
-                return Color.WHITE;
-            }
-        };
-        
-        context.setVertexFillPaintTransformer(painter);
-        context.setVertexFontTransformer(new Transformer<TreeNode, Font>() {
-            public Font transform(TreeNode i) {
-                return VERTEX_FONT;
-            }
+        	}
+        	
+            return Color.WHITE;
+        });
+        context.setVertexFontTransformer((TreeNode i) -> {
+            return VERTEX_FONT;
         });
         
         final Color vertexLabelColor = Color.BLACK;
@@ -111,23 +104,20 @@ public class BinaryTreeGUI extends JPanel {
 		};
         context.setVertexLabelRenderer(vertexLabelRenderer);
 
-        Transformer<TreeNode, Shape> vertexSize;
-        vertexSize = new Transformer<TreeNode, Shape>() {
-            @Override
-            public Shape transform(TreeNode n) {
-            	double rectWidth = context.getGraphicsContext().getFontMetrics().stringWidth(n.toString()) + 30;
-            	
-            	Rectangle2D rect = new Rectangle2D.Double(-rectWidth/2, -15, rectWidth, 30);
-                
-            	if (n.data != null) {
-            		if (n.data.type == NodeType.typeNone || n.data.type == NodeType.typePlaceholder) {
-                        return new Ellipse2D.Double(-EMPTY_VERTEX_SIZE/2, -EMPTY_VERTEX_SIZE/2, EMPTY_VERTEX_SIZE, EMPTY_VERTEX_SIZE);
-            		}
-            	}
-            	
-                return rect;
-            }
+        Function<? super TreeNode, Shape> vertexSize = (TreeNode n) -> {
+        	double rectWidth = context.getGraphicsContext().getFontMetrics().stringWidth(n.toString()) + 30;
+        	
+        	Rectangle2D rect = new Rectangle2D.Double(-rectWidth/2, -15, rectWidth, 30);
+            
+        	if (n.data != null) {
+        		if (n.data.type == NodeType.typeNone || n.data.type == NodeType.typePlaceholder) {
+                    return new Ellipse2D.Double(-EMPTY_VERTEX_SIZE/2, -EMPTY_VERTEX_SIZE/2, EMPTY_VERTEX_SIZE, EMPTY_VERTEX_SIZE);
+        		}
+        	}
+        	
+            return rect;
         };
+
         context.setVertexShapeTransformer(vertexSize);
 
         final DefaultModalGraphMouse<TreeNode, TreeEdge> graphMouse = new DefaultModalGraphMouse<TreeNode, TreeEdge>();

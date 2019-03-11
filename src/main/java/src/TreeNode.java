@@ -1,5 +1,4 @@
-package tfy_lab3;
-
+package src;
 class TreeNode {
 	public TreeNode() {}
 	

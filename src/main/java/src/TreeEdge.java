@@ -1,5 +1,4 @@
-package tfy_lab3;
-
+package src;
 public class TreeEdge {
 	public TreeEdge(TreeNode from, TreeNode to) {
 		this.from = from;

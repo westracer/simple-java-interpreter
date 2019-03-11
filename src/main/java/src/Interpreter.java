@@ -1,5 +1,4 @@
-package tfy_lab3;
-
+package src;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;

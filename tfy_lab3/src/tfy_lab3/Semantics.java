@@ -205,8 +205,8 @@ public class Semantics {
 		updateCurrentNode(id, textPos, val);
 	}
 	
-	void addArrayCellVar(RefValue ref, char[] id, ArrayList<Integer> indices, long value) {
-		RefValue val = new RefValue(id, value);
+	void addArrayCellVar(RefValue ref, char[] id, ArrayList<Integer> indices, RefValue value) {
+		RefValue val = new RefValue(id, value.value);
 		val.rawType = ref.rawType;
 		val.refType = ref.refType;
 		val.arrayIndex = indices;
@@ -339,7 +339,7 @@ public class Semantics {
 			throwError("Операции над массивами не разрешены для " + new String(varId).trim());
 			return;
 		}
-		
+
 		val.value = value.value;
 	}
 	
@@ -360,7 +360,7 @@ public class Semantics {
 		
 		RefValue cellVal = findArrayCellVar(varId, indicesList);
 		if (cellVal == null) {
-			addArrayCellVar(val, varId, indicesList, value.value);
+			addArrayCellVar(val, varId, indicesList, value);
 		} else {
 			cellVal.value = value.value;
 		}

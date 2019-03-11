@@ -1,5 +1,6 @@
 package tfy_lab3;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -8,6 +9,7 @@ public class Interpreter {
     static HashMap<Types, Integer> precedence = new HashMap<Types, Integer>();
     static final public long TRUE = 1;
     static final public long FALSE = 0;
+    static final public Types[] NUMBER_TYPES = { Types.Tint, Types.Tint64, Types.Tc10int };
     
 	LinkedList expression;
 	LinkedList<RefValue> operands = new LinkedList();
@@ -41,11 +43,52 @@ public class Interpreter {
 		System.exit(0);
 	}
 	
+	private boolean _checkBinaryTypes(RefValue op1, RefValue op2, Types operator) {
+		if (op1.refType != null || op2.refType != null) {
+			throwError("Разрешены только операции над простыми типами");
+			return false;
+		}
+		
+		if (
+			(op1.rawType != op2.rawType && op1.rawType != Types.Tc10int && op2.rawType != Types.Tc10int) || 
+			Arrays.binarySearch(NUMBER_TYPES, op1.rawType) < 0 ||
+			Arrays.binarySearch(NUMBER_TYPES, op2.rawType) < 0
+		) {			
+			throwError("Несовместимые типы операндов: [" + op1.rawType + "], [" + op2.rawType + "] => " + operator);
+			return false;
+		}
+		
+		return true;
+	}
+	
+	private boolean _checkUnaryType(RefValue op1, Types operator) {
+		if (op1.refType != null) {
+			throwError("Разрешены только операции над простыми типами");
+			return false;
+		}
+		
+		switch (operator) {
+		case Tinc:
+		case Tdec:
+			if (Arrays.binarySearch(NUMBER_TYPES, op1.rawType) < 0) {				
+				throwError("Несовместимый тип операнда: [" + op1.rawType + "] => " + operator);
+				return false;
+			}
+			break;
+			default:
+		}
+		
+		return true;
+	}
+	
 	private void _evaluateUnaryOperation() {
 		RefValue op1 = operands.pollLast();
 		Types operator = operators.pollLast();
 
 		RefValue refValue = new RefValue(null, 0);
+		if (!_checkUnaryType(op1, operator)) {
+			return;
+		}
 		
 		switch (operator) {
 		case Tinc:
@@ -82,6 +125,9 @@ public class Interpreter {
 		Types operator = operators.pollLast();
 
 		RefValue refValue = new RefValue(null, 0);
+		if (!_checkBinaryTypes(op1, op2, operator)) {
+			return;
+		}
 		
 		switch (operator) {
 		// arithmetic

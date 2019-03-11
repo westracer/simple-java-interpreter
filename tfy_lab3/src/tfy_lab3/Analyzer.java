@@ -674,12 +674,12 @@ public class Analyzer {
 				
 				if (type==Types.Tc16int) {
 					RefValue val = new RefValue(null, Long.decode(new String(lex).trim()));
-					val.rawType = Types.Tint;
+					val.rawType = Types.Tc10int;
 					
 					stack.addLast(val);
 				} else if (type==Types.Tc10int) {
 					RefValue val = new RefValue(null, Long.parseLong(new String(lex).trim(), 10));
-					val.rawType = Types.Tint;
+					val.rawType = Types.Tc10int;
 					
 					stack.addLast(val);
 				}

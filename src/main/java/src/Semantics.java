@@ -96,12 +96,12 @@ public class Semantics {
 		return null;
 	}
 	
-	RefValue findArrayCellVar(char[] id, ArrayList<Integer> indices) {
-		TreeNode node = currentNode;
+	RefValue findArrayCellVar(char[] id, ArrayList<Integer> indices, TreeNode arrayTreeNode) {
+		TreeNode node = arrayTreeNode.leftChild;
 		
-		while (node != null) {
+		while (node != null && Arrays.equals(node.data.id, id)) {
 			if (node.data.type != NodeType.typeVar) {
-				node = node.parent;
+				node = node.leftChild;
 				continue;
 			}
 			
@@ -109,7 +109,7 @@ public class Semantics {
 				return node.data.refValue;
 			}
 
-			node = node.parent;
+			node = node.leftChild;
 		}
 		
 		return null;
@@ -175,12 +175,12 @@ public class Semantics {
 		return false;
 	}
 	
-	void addVar(char[] typeId, Types type, char[] id, long value, int textPos) {
+	boolean addVar(char[] typeId, Types type, char[] id, long value, int textPos) {
 		checkType(typeId, type);
 		
 		if (findVar(id) != null) {
 			throwError("Переменная уже есть " + new String(id).trim());
-			return;
+			return false;
 		}
 		
 		if (type == Types.Tid) {
@@ -188,6 +188,8 @@ public class Semantics {
 		} else {
 			addVar(type, id, 0, textPos);
 		}
+		
+		return true;
 	}
 	
 	void addVar(Types type, char[] id, long value, int textPos) {
@@ -204,13 +206,17 @@ public class Semantics {
 		updateCurrentNode(id, textPos, val);
 	}
 	
-	void addArrayCellVar(RefValue ref, char[] id, ArrayList<Integer> indices, RefValue value) {
+	void addArrayCellVar(RefValue ref, char[] id, ArrayList<Integer> indices, RefValue value, TreeNode arrayTreeNode) {
 		RefValue val = new RefValue(id, value.value);
 		val.rawType = ref.rawType;
 		val.refType = ref.refType;
 		val.arrayIndex = indices;
-		
-		updateCurrentNode(id, 0, val);
+
+		TreeNode newNode = createEmptyNode();
+		newNode.data = new NodeData(NodeType.typeVar, id, 0, val);
+		newNode.parent = arrayTreeNode;
+		newNode.leftChild = arrayTreeNode.leftChild;
+		arrayTreeNode.leftChild = newNode;
 	}
 	
 	void updateCurrentNode(char[] id, int textPos, RefValue val) {
@@ -342,6 +348,25 @@ public class Semantics {
 		val.value = value.value;
 	}
 	
+	TreeNode findArrayVarNode(RefValue val) {
+		TreeNode node = currentNode;
+		
+		while (node != null) {
+			if (node.data.type != NodeType.typeVar) {
+				node = node.parent;
+				continue;
+			}
+			
+			if (node.data.refValue == val) {
+				return node;
+			}
+
+			node = node.parent;
+		}
+		
+		return null;
+	}
+	
 	void setVarArrayCellValue(char[] varId, Integer[] indices, RefValue value) {
 		RefValue val = findVar(varId);
 		if (val == null) {
@@ -356,10 +381,11 @@ public class Semantics {
 		val.value = value.value;
 
 		ArrayList<Integer> indicesList = new ArrayList<Integer>(Arrays.asList(indices));
+		TreeNode arrayTreeNode = findArrayVarNode(val);
 		
-		RefValue cellVal = findArrayCellVar(varId, indicesList);
+		RefValue cellVal = findArrayCellVar(varId, indicesList, arrayTreeNode);
 		if (cellVal == null) {
-			addArrayCellVar(val, varId, indicesList, value);
+			addArrayCellVar(val, varId, indicesList, value, arrayTreeNode);
 		} else {
 			cellVal.value = value.value;
 		}

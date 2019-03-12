@@ -133,8 +133,9 @@ public class Analyzer {
 		if(type!=Types.Tid)
 			printError(Types.Tid);
 		
+		boolean varAdded = false;
 		if (isTypeOk) {
-			sem.addVar(dataTypeLex, dataType, sc.getLex(), 0, sc.pos_text);
+			varAdded = sem.addVar(dataTypeLex, dataType, sc.getLex(), 0, sc.pos_text);
 		}
 		
 		type = sc.Scan();
@@ -148,7 +149,12 @@ public class Analyzer {
 		if(type==Types.Tas)
 		{
 			sc.LoadPos();
+			boolean wasInterpreting = isInterpreting;
+			isInterpreting = varAdded;
+			
 			H();
+			
+			isInterpreting = wasInterpreting;
 			sc.SavePos();
 			type=sc.Scan();
 		}
@@ -205,7 +211,7 @@ public class Analyzer {
 			} else
 				if (type != Types.Tsem)
 					printError(Types.Tsem);
-		}
+		} else printError(Types.Tid);
 	}
 	
 	void D() throws IOException
@@ -335,7 +341,7 @@ public class Analyzer {
 					if(type!=Types.Tsem)
 						printError(Types.Tsem);
 					
-					int[] blockPos = sc.SavePos();
+					int[] postVPos = sc.SavePos();
 					
 					boolean wasInterpreting = isInterpreting;
 					isInterpreting = false;
@@ -346,6 +352,8 @@ public class Analyzer {
 					if(type!=Types.TrPar)
 						printError(Types.TrPar);
 					
+					int[] blockPos = sc.SavePos();
+					
 					G();
 					
 					int[] afterPos = sc.SavePos();
@@ -354,8 +362,11 @@ public class Analyzer {
 					
 					while (eval == Interpreter.TRUE && isInterpreting) {
 						sc.LoadPos(blockPos);
-						
+						G();
+
 						// post V
+						sc.LoadPos(postVPos);
+						
 						if (isInterpreting) {
 							stack.clear();
 							V();
@@ -363,10 +374,7 @@ public class Analyzer {
 							itpr.evaluate();
 						}
 						
-						type = sc.Scan();
-						if(type!=Types.TrPar)
-							printError(Types.TrPar);
-						G();
+						type = sc.Scan(); // Types.TrPar
 
 						// condition
 						sc.LoadPos(conditionPos);
@@ -649,7 +657,7 @@ public class Analyzer {
 				stack = savedStack;
 				
 				ArrayList<Integer> indList = new ArrayList<Integer>(Arrays.asList(indices));
-				RefValue val = sem.findArrayCellVar(lex, indList);
+				RefValue val = sem.findArrayCellVar(lex, indList, sem.findArrayVarNode(sem.findVar(lex)));
 				
 				if (val != null) {
 					stack.addLast(val);

@@ -24,7 +24,11 @@ int main() {
 		
 		for (int i = 0; i < 10; i++) testing = testing + 1; // testing = 20
 		int testing2 = testing;
+		
 		for (int i = 0; i < 10; i++) {testing2 = testing2 + 1;} // testing2 = 30
+		int testing3 = 100;
+		int testing3 = 36;
+		for (int i = 0; i < 10; i++) {asdd[i] = i;}
 	}
 }
 

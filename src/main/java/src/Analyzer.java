@@ -529,6 +529,22 @@ public class Analyzer {
 	}
 	void V() throws IOException
 	{
+		Q0();
+		Types type;
+		
+		sc.SavePos();
+		type = sc.Scan();
+		while(type==Types.Tas)
+		{
+			stack.addLast(type);
+			Q0();
+			sc.SavePos();
+			type = sc.Scan();
+		}
+		sc.LoadPos();
+	}
+	void Q0() throws IOException
+	{
 		Q1();
 		Types type;
 		

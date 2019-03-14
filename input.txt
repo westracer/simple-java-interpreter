@@ -7,7 +7,8 @@ arr2 testArray2;
 int main() {
 	// testArray2 = testArray;
 	__int64 s = 10;
-	int b = 2++;
+	int d = 10;
+	int b = d = 2++;
 
 	int a = ++1 * 4 + 2 + (++29 - 30) + 6 / 3 + 2; // = 14
 	typedef arr2 arr3[10][a - b][3];
@@ -27,7 +28,7 @@ int main() {
 		
 		for (int i = 0; i < 10; i++) {testing2 = testing2 + 1;} // testing2 = 30
 		int testing3 = 100;
-		int testing3 = 36;
+		// int testing3 = 36;
 		for (int i = 0; i < 10; i++) {asdd[i] = i;}
 	}
 }

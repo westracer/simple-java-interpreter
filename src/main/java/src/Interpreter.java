@@ -34,6 +34,7 @@ public class Interpreter {
 		precedence.put(Types.TmoreEq, 6);
 		precedence.put(Types.Teq, 7);
 		precedence.put(Types.TnotEq, 7);
+		precedence.put(Types.Tas, 14);
 	}
 	
 	void throwError(String message) {
@@ -164,6 +165,10 @@ public class Interpreter {
 			break;
 		case TnotEq:
 			refValue.value = op1.value != op2.value ? Interpreter.TRUE : Interpreter.FALSE;
+			break;
+		case Tas:
+			op1.value = op2.value;
+			refValue.value = op1.value;
 			break;
 		default:
 			throwError("Неверный тип оператора: " + operator);

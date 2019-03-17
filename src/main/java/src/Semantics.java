@@ -216,6 +216,7 @@ public class Semantics {
 		newNode.data = new NodeData(NodeType.typeVar, id, 0, val);
 		newNode.parent = arrayTreeNode;
 		newNode.leftChild = arrayTreeNode.leftChild;
+		arrayTreeNode.leftChild.parent = newNode;
 		arrayTreeNode.leftChild = newNode;
 	}
 	

@@ -330,7 +330,11 @@ public class Analyzer {
 					long eval = 0;
 					if (isInterpreting) {
 						stack.clear();
-						V();
+					}
+					
+					V();
+						
+					if (isInterpreting) {
 						Interpreter itpr = new Interpreter(stack);
 						itpr.evaluate();
 					
@@ -369,7 +373,11 @@ public class Analyzer {
 						
 						if (isInterpreting) {
 							stack.clear();
-							V();
+						}
+						
+						V();
+							
+						if (isInterpreting) {
 							Interpreter itpr = new Interpreter(stack);
 							itpr.evaluate();
 						}
@@ -381,7 +389,11 @@ public class Analyzer {
 
 						if (isInterpreting) {
 							stack.clear();
-							V();
+						}
+						
+						V();
+						
+						if (isInterpreting) {
 							Interpreter itpr = new Interpreter(stack);
 							itpr.evaluate();
 							

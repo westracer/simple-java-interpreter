@@ -209,7 +209,7 @@ public class Semantics {
 	void addArrayCellVar(RefValue ref, char[] id, ArrayList<Integer> indices, RefValue value, TreeNode arrayTreeNode) {
 		RefValue val = new RefValue(id, value.value);
 		val.rawType = ref.rawType;
-		val.refType = ref.refType;
+//		val.refType = ref.refType; // no ref type for array cell fix?
 		val.arrayIndex = indices;
 
 		TreeNode newNode = createEmptyNode();

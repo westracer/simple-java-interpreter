@@ -1,3 +1,5 @@
+
+
 typedef int arr1[10];
 typedef arr1 arr2[10][2][3];
 
@@ -6,12 +8,43 @@ arr2 testArray2;
 
 int main() {
 	arr1 for2[10];
+	arr1 for3[10];
+	arr1 jjj;
+	jjj[0] = 1;
+	
+	int A, B=90;
+	
+	for3[jjj[0]][jjj[0]] = B / 10 + 3*4;
+	
+	
 	for2[0][0] = 1 * 10 + 1;
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
 			for2[i][j] = i * 10 + j;
 		}
 	}
+	
+	 {
+	 arr1 number1;
+	 arr1 number2;
+	 arr1 res;
+		for (int i = 0; i < 9; i++) {
+			number1[i] = 1;
+			number2[i] = 9;
+		}
+		number2[5] = 8;
+		
+		int carry = 0;
+		for (int i = 0; i < 9; i++) {
+			int r = number1[i] + number2[i] + carry;
+			carry = r / 10;
+			res[i] = r % 10;
+		}
+		
+		res[9] = carry;
+	 
+	 }
+	
 	
 	
 	// testArray2 = testArray;
@@ -42,9 +75,6 @@ int main() {
 	}
 }
 
-__int64 test, 
-test2 = 4 > 3 * 10 % 3, // = 1
-test3 = test2 == test;	// = 0
 
 
 
